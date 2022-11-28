@@ -1,0 +1,70 @@
+#####################################################################################
+# Global
+#
+
+- name: 'Allow full access from containers'
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: 'br-+'
+    jump: ACCEPT
+    comment: 'Allow containers access'
+  become: yes
+  when: docker_intra_access | default (false)
+  register: iptables_br
+
+- name: 'Allow full access from containers on docker0'
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: 'docker0'
+    jump: ACCEPT
+    comment: 'Allow containers access on docker0'
+  become: yes
+  when: docker_intra_access | default (false)
+  register: iptables_br2
+
+- name: Save iptables
+  shell: |
+    iptables-save | grep -v 'TEMP ' | grep -v 'LIBVIRT_' \
+    | grep -v -i 'docker' | grep -v 'A FORWARD ' \
+    | grep -v 'ufw-' >/etc/iptables/rules.v4
+  become: yes
+  check_mode: no
+  when:
+    - iptables_br.changed or iptables_br2.changed
+    - docker_intra_access | default (false)
+
+- name: Install latest docker.io package
+  apt:
+    pkg:
+      - docker.io
+    state: latest
+  become: yes
+
+- name: Install python libs
+  pip:
+    name:
+      - docker
+      - docker-compose
+  become: yes
+
+#- name: Log into private docker registries
+#  docker_login:
+#    registry: "{{ item.host }}"
+#    username: "{{ item.login }}"
+#    password: "{{ item.password }}"
+#  become: yes
+#  loop: "{{ docker_registry | default([]) }}"
+#  when:
+#    - item.password is defined
+#    - item.password != ""
+
+- name: Add cronjob to prune images every Saturday
+  ansible.builtin.cron:
+    name: docker_image_prune
+    weekday: "6"
+    minute: "05"
+    hour: "05"
+    user: root
+    job: "docker image prune -f && docker builder prune -f && docker system prune -f && docker container prune -f"
+    cron_file: docker_image_prune
+  become: yes

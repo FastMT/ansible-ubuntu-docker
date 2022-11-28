@@ -1,0 +1,2 @@
+# Enable intra-container access
+docker_intra_access: false
