@@ -6,7 +6,7 @@ Ansible role to install Docker on linux (Ubuntu) servers
 Create requirements.yml file
 
 ```
-# Include ubuntu-vpn-net role
+# Include ubuntu-docker role
 - src: https://github.com/FastMT/ansible-ubuntu-docker.git
   name: ubuntu-docker
   version: "v1.0.0"
