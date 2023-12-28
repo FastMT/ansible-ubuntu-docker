@@ -8,7 +8,7 @@
     in_interface: 'br-+'
     jump: ACCEPT
     comment: 'Allow containers access'
-  become: yes
+  become: true
   when: docker_intra_access | default (false)
   register: iptables_br
 
@@ -18,7 +18,7 @@
     in_interface: 'docker0'
     jump: ACCEPT
     comment: 'Allow containers access on docker0'
-  become: yes
+  become: true
   when: docker_intra_access | default (false)
   register: iptables_br2
 
@@ -27,7 +27,7 @@
     iptables-save | grep -v 'TEMP ' | grep -v 'LIBVIRT_' \
     | grep -v -i 'docker' | grep -v 'A FORWARD ' \
     | grep -v 'ufw-' >/etc/iptables/rules.v4
-  become: yes
+  become: true
   check_mode: no
   when:
     - iptables_br.changed or iptables_br2.changed
@@ -38,21 +38,21 @@
     pkg:
       - docker.io
     state: latest
-  become: yes
+  become: true
 
 - name: Install python libs
   pip:
     name:
-      - docker
-      - docker-compose
-  become: yes
+      - "docker==6.1.3"
+      - "docker-compose"
+  become: true
 
 #- name: Log into private docker registries
 #  docker_login:
 #    registry: "{{ item.host }}"
 #    username: "{{ item.login }}"
 #    password: "{{ item.password }}"
-#  become: yes
+#  become: true
 #  loop: "{{ docker_registry | default([]) }}"
 #  when:
 #    - item.password is defined
@@ -67,4 +67,4 @@
     user: root
     job: "docker image prune -f && docker builder prune -f && docker system prune -f && docker container prune -f"
     cron_file: docker_image_prune
-  become: yes
+  become: true
