@@ -89,7 +89,7 @@
 - name: Verify Docker installation
   command: docker --version
   register: docker_version
-  changed_when: true
+  changed_when: false
 
 - debug:
     msg: "Docker version installed: {{ docker_version.stdout }}"
