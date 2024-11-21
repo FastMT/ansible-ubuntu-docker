@@ -203,6 +203,6 @@
     minute: "05"
     hour: "05"
     user: root
-    job: "docker image prune -f && docker builder prune -f && docker system prune -f && docker container prune -f"
+    job: "docker image prune -fa && docker builder prune -f && docker system prune -f && docker container prune -f"
     cron_file: docker_image_prune
   become: true
