@@ -123,8 +123,8 @@
 
 - name: Download Docker Compose binary
   get_url:
-    url: https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-x86_64
-    dest: /usr/local/bin/docker-compose
+    url: "https://github.com/docker/compose/releases/download/v{{docker_compose_version}}/docker-compose-linux-x86_64"
+    dest: "/usr/local/bin/docker-compose"
     mode: '0755'
   become: true
 
@@ -138,45 +138,20 @@
     msg: "Docker-compose version installed: {{ compose_version_check.stdout }}"
 
 #####################################################################################
-# Update python libraries
+# Install python libraries
 #####################################################################################
 
-# - name: Install build dependencies
-#   apt:
-#     name:
-#       - build-essential
-#       - libssl-dev
-#       - libffi-dev
-#       - python3-dev
-#     state: present
-#   become: true
-
-# - name: Upgrade pip, setuptools, wheel
-#   pip:
-#     name:
-#       - pip
-#       - setuptools
-#       - wheel
-#     state: latest
-#     extra_args: --ignore-installed
-#   environment:
-#     PIP_USER: "no"
-#   become: true
-
-# - name: Upgrade PyYAML
-#   pip:
-#     name: PyYAML
-#     state: latest
-#     extra_args: "--no-binary :all:"
-#   environment:
-#     PIP_USER: "no"
-#   become: true
+- name: Set pip extra_args if Ubuntu version is >= 24
+  set_fact:
+    docker_pip_extra_args: "--break-system-packages"
+  when:
+    - ansible_facts['lsb']['release'] == "24.04"
 
 - name: Install Docker python libs
   pip:
     name:
       - "docker"
-#     extra_args: "--break-system-packages"
+    extra_args: "{{ docker_pip_extra_args | default ('') }}"
   environment:
     PIP_USER: "no"
   become: true
