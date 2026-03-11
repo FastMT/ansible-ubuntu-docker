@@ -9,7 +9,7 @@ Create requirements.yml file
 # Include ubuntu-docker role
 - src: https://github.com/FastMT/ansible-ubuntu-docker.git
   name: ubuntu-docker
-  version: "v1.0.4"
+  version: "v1.0.5"
 ```
 
 Install external module into ~/.ansible/roles folder

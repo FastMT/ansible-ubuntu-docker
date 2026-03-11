@@ -1,3 +1,2 @@
-# Enable intra-container access
+# Enable intra-container access via iptables
 docker_intra_access: false
-docker_compose_version: "2.30.3"
